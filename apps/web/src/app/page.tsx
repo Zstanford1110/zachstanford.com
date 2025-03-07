@@ -1,10 +1,89 @@
-import { Button } from '@repo/ui';
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import Matter from "matter-js";
+import { DataUnit } from "@/components/DataUnit";
 
 
 export default function Home() {
+  // Matter.js Engine Configuration
+  const sceneRef = useRef<HTMLDivElement>(null);
+  const engineRef = useRef<Matter.Engine | null>(null);
+  const renderRef = useRef<Matter.Render | null>(null);
+  const [engineReady, setEngineReady] = useState(false);
+
+  // Initialization of Engine and Renderer
+  useEffect(() => {
+    // Initialize Physics Engine
+    const engine = Matter.Engine.create(); // Create physics engine
+    const world = engine.world; // Get the physics world
+    engineRef.current = engine;
+
+    // Initialize Matter.js Renderer
+    const render = Matter.Render.create({
+      element: sceneRef.current!,
+      engine: engine,
+      options: {
+        width: 800,
+        height: 400,
+        background: 'transparent', // Allows custom styling
+        wireframes: true, // Disable when not debugging
+      },
+    });
+
+    // Save render instance
+    renderRef.current = render;
+
+    // Start the physics engine and renderer
+    const runner = Matter.Runner.create();
+    Matter.Runner.run(runner, engine);
+    Matter.Render.run(render);
+
+    // Integrate with user input (mouse) and enable dragging
+    const mouse = Matter.Mouse.create(render.canvas);
+    const mouseConstraint = Matter.MouseConstraint.create(engine, {
+      mouse,
+      constraint: {
+        stiffness: 0.2,
+        render: { visible: false },
+      },
+    });
+
+    // Add static boundaries to the canvas (Walls and Floor)
+    const boundaries = [
+      Matter.Bodies.rectangle(400, 0, 800, 10, { isStatic: true }), // Top wall
+      Matter.Bodies.rectangle(400, 400, 800, 10, { isStatic: true }), // Bottom floor
+      Matter.Bodies.rectangle(0, 200, 10, 400, { isStatic: true }), // Left wall
+      Matter.Bodies.rectangle(800, 200, 10, 400, { isStatic: true }), // Right wall
+    ];
+
+    // Add the Engine's world to the overall world
+    Matter.World.add(world, [...boundaries, mouseConstraint]);
+
+    // Mark the engine as ready
+    setEngineReady(true);
+
+    // Clean up the world, engine, and renderer when component unmounts/re-renders
+    return () => {
+      Matter.World.clear(world, false);
+      Matter.Engine.clear(engine);
+      Matter.Render.stop(render);
+      Matter.Runner.stop(runner);
+    };
+  }, []);
+
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen bg-gray-900 px-4">
-      <Button className={'px-4 py-2 bg-blue-500 rounded text-white'} appName='Next.js'>Click Me</Button>
+    <main className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
+      <h1 className="text-3xl mb-4">Insert Your Data Unit</h1>
+      <div ref={sceneRef} className="relative w-[800px] h-[400px]">
+      {engineReady && ( // ✅ Only render DataUnits when the engine is ready
+          <>
+            <DataUnit engine={engineRef} renderRef={renderRef} label="Project 1" />
+            <DataUnit engine={engineRef} renderRef={renderRef} label="Project 2" />
+            <DataUnit engine={engineRef} renderRef={renderRef} label="Project 3" />
+          </>
+        )}
+      </div>
     </main>
   );
 }
