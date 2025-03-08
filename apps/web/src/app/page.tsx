@@ -44,17 +44,18 @@ export default function Home() {
     const mouseConstraint = Matter.MouseConstraint.create(engine, {
       mouse,
       constraint: {
-        stiffness: 0.2,
+        stiffness: 0.1,
+        // angularStiffness: 0.1, 
         render: { visible: false },
       },
     });
 
     // Add static boundaries to the canvas (Walls and Floor)
     const boundaries = [
-      Matter.Bodies.rectangle(400, 0, 800, 10, { isStatic: true }), // Top wall
-      Matter.Bodies.rectangle(400, 400, 800, 10, { isStatic: true }), // Bottom floor
-      Matter.Bodies.rectangle(0, 200, 10, 400, { isStatic: true }), // Left wall
-      Matter.Bodies.rectangle(800, 200, 10, 400, { isStatic: true }), // Right wall
+      Matter.Bodies.rectangle(400, -5, 800, 20, { isStatic: true }), // Top wall
+      Matter.Bodies.rectangle(400, 405, 800, 20, { isStatic: true }), // Bottom floor
+      Matter.Bodies.rectangle(-5, 200, 20, 400, { isStatic: true }), // Left wall
+      Matter.Bodies.rectangle(805, 200, 20, 400, { isStatic: true }), // Right wall
     ];
 
     // Add the Engine's world to the overall world
@@ -73,7 +74,7 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
+    <main className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white overflow-hidden">
       <h1 className="text-3xl mb-4">Insert Your Data Unit</h1>
       <div ref={sceneRef} className="relative w-[800px] h-[400px]">
       {engineReady && ( // ✅ Only render DataUnits when the engine is ready
