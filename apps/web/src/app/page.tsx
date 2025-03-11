@@ -61,11 +61,32 @@ export default function Home() {
     // Add the Engine's world to the overall world
     Matter.World.add(world, [...boundaries, mouseConstraint]);
 
+    // Global velocity limiting for all bodies
+    Matter.Events.on(engine, 'beforeUpdate', () => {
+      const maxSpeed = 10; // Maximum speed limit
+      const bodies = Matter.Composite.allBodies(world);
+
+      for (let i = 0; i < bodies.length; i++) {
+        const body = bodies[i];
+        // Skip static bodies
+        if (body.isStatic) continue;
+
+        // Apply velocity limiting to all non-static bodies
+        if (Matter.Body.getSpeed(body) > maxSpeed) {
+          Matter.Body.setVelocity(
+            body,
+            Matter.Vector.mult(Matter.Body.getVelocity(body), 0.8)
+          );
+        }
+      }
+    });
+
     // Mark the engine as ready
     setEngineReady(true);
 
     // Clean up the world, engine, and renderer when component unmounts/re-renders
     return () => {
+      Matter.Events.off(engine, 'beforeUpdate');
       Matter.World.clear(world, false);
       Matter.Engine.clear(engine);
       Matter.Render.stop(render);
@@ -77,7 +98,7 @@ export default function Home() {
     <main className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white overflow-hidden">
       <h1 className="text-3xl mb-4">Insert Your Data Unit</h1>
       <div ref={sceneRef} className="relative w-[800px] h-[400px]">
-      {engineReady && ( // ✅ Only render DataUnits when the engine is ready
+        {engineReady && ( // ✅ Only render DataUnits when the engine is ready
           <>
             <DataUnit engine={engineRef} renderRef={renderRef} label="Project 1" />
             <DataUnit engine={engineRef} renderRef={renderRef} label="Project 2" />

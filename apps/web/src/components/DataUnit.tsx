@@ -16,7 +16,7 @@ export const DataUnit = ({ label, engine, renderRef }: DataUnitProps) => {
   const animationFrameRef = useRef<number | null>(null);
 
   // Width and height of each data unit
-  const width = 80;
+  const width = 100;
   const height = 40;
 
   useEffect(() => {
@@ -26,16 +26,19 @@ export const DataUnit = ({ label, engine, renderRef }: DataUnitProps) => {
       return;
     }
 
+    // Check if renderer is running
     if (!renderRef.current) {
-      console.log("Render is not ready yet for:", label);
+      console.log("Renderer is not ready yet for:", label);
       return;
     }
 
+    // If this data unit exists in the physic world, exit here
     if (addedToWorld.current) return;
 
+    // Update the ref to mark that the data unit has been created and added to the world
     addedToWorld.current = true;
 
-    // Access the engine from props
+    // Access the active physics world from props
     const world = engine.current.world;
 
     // Create the data unit
@@ -55,14 +58,6 @@ export const DataUnit = ({ label, engine, renderRef }: DataUnitProps) => {
     Matter.World.add(world, dataUnit);
     dataUnitRef.current = dataUnit;
 
-    // Limit velocity of data units to prevent bypassing collision detection
-    Matter.Events.on(engine.current, "beforeUpdate", () => {
-      const maxSpeed = 10; // Maximum speed of a data unit, change to make faster/slower
-      if (Matter.Body.getSpeed(dataUnit) > maxSpeed) {
-        Matter.Body.setVelocity(dataUnit, Matter.Vector.mult(Matter.Body.getVelocity(dataUnit), 0.8))
-      }
-    });
-
     console.log("DataUnit added to world:", Matter.Composite.allBodies(world));
   }, [engine, renderRef, label]);
 
@@ -70,6 +65,7 @@ export const DataUnit = ({ label, engine, renderRef }: DataUnitProps) => {
   useEffect(() => {
     if (!dataUnitRef.current) return;
 
+    // Function to constantly update the label position for each data unit
     const updateLabelPosition = () => {
       const { x, y } = dataUnitRef.current!.position;
       const { angle } = dataUnitRef.current!;
