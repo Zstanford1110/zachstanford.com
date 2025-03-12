@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Matter from "matter-js";
 import { DataUnit } from "@/components/DataUnit";
+import { useCollisionDetection } from "@/hooks/useCollisionDetection";
 
 
 export default function Home() {
@@ -11,6 +12,9 @@ export default function Home() {
   const engineRef = useRef<Matter.Engine | null>(null);
   const renderRef = useRef<Matter.Render | null>(null);
   const [engineReady, setEngineReady] = useState(false);
+
+  // References to bodies in the physics world
+  const dockingStationRef = useRef<Matter.Body | null>(null);
 
   // Initialization of Engine and Renderer
   useEffect(() => {
@@ -58,6 +62,16 @@ export default function Home() {
       Matter.Bodies.rectangle(805, 200, 20, 400, { isStatic: true }), // Right wall
     ];
 
+    // Create the docking station body
+    const dockingStation = Matter.Bodies.rectangle(400, 350, 100, 20, {
+      isStatic: true,
+      label: 'DockingStation',
+      render: { fillStyle: 'gray', strokeStyle: 'white', lineWidth: 2 },
+    });
+
+    Matter.World.add(world, dockingStation);
+    dockingStationRef.current = dockingStation;
+
     // Add the Engine's world to the overall world
     Matter.World.add(world, [...boundaries, mouseConstraint]);
 
@@ -85,20 +99,28 @@ export default function Home() {
     setEngineReady(true);
 
     // Clean up the world, engine, and renderer when component unmounts/re-renders
-    return () => {
+    return () => { 
+      if (mouseConstraint) {
+        Matter.World.remove(world, mouseConstraint);
+      }
+      Matter.World.remove(world, dockingStation);
       Matter.Events.off(engine, 'beforeUpdate');
       Matter.World.clear(world, false);
       Matter.Engine.clear(engine);
       Matter.Render.stop(render);
+      render.canvas.remove();
       Matter.Runner.stop(runner);
     };
   }, []);
+
+  // Enable collision detection for docking station
+  useCollisionDetection(engineRef, dockingStationRef, () => alert('Inserted Project into docking station'));
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white overflow-hidden">
       <h1 className="text-3xl mb-4">Insert Your Data Unit</h1>
       <div ref={sceneRef} className="relative w-[800px] h-[400px]">
-        {engineReady && ( // ✅ Only render DataUnits when the engine is ready
+        {engineReady && (
           <>
             <DataUnit engine={engineRef} renderRef={renderRef} label="Project 1" />
             <DataUnit engine={engineRef} renderRef={renderRef} label="Project 2" />
