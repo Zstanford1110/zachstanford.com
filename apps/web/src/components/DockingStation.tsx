@@ -10,7 +10,6 @@ interface DockingStationProps {
 export const DockingStation = ({ engine }: DockingStationProps) => {
   const dockingStationRef = useRef<Matter.Body | null>(null);
   const [loadedDataUnit, setLoadedDataUnit] = useState<Matter.Body | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     // Verify that engine has started
@@ -22,7 +21,7 @@ export const DockingStation = ({ engine }: DockingStationProps) => {
     const world = engine.current.world;
 
     // Create the Docking Station body
-    const dockingStation = Matter.Bodies.rectangle(500, 500, 125, 30, {
+    const dockingStation = Matter.Bodies.rectangle(400, 350, 100, 20, {
       isStatic: true,
       label: "DockingStation",
     });
@@ -35,7 +34,7 @@ export const DockingStation = ({ engine }: DockingStationProps) => {
       event.pairs.forEach((pair) => {
         const { bodyA, bodyB } = pair;
 
-        // Ensure we are detecting only DataUnits colliding with Docking Station
+        // ✅ Ensure we are detecting only DataUnits colliding with Docking Station
         const isDataUnitA = bodyA.label === "DataUnit";
         const isDataUnitB = bodyB.label === "DataUnit";
         const isDockingStationA = bodyA.label === "DockingStation";
@@ -43,46 +42,16 @@ export const DockingStation = ({ engine }: DockingStationProps) => {
 
         if ((isDataUnitA && isDockingStationB) || (isDataUnitB && isDockingStationA)) {
           const dataUnit = isDataUnitA ? bodyA : bodyB;
-          // If there is a data unit loaded, do not allow another to be loaded
+          // If there isn't a data unit loaded or ready to be loaded (collision), if not we're done here
           if (loadedDataUnit || !dataUnit) return;
 
-          // Simulated loading animation for data unit inserting into the docking station
-          if (!isLoading) {
-            setIsLoading(true);
+          // Magnetic lock for the data unit to secure it in the station
+          Matter.Body.setStatic(dataUnit, true);
+          Matter.Body.setPosition(dataUnit, { x: 400, y: 330 }) // Will need to adjust this value based on where I decide to put the docking station later
+          Matter.Body.setAngle(dataUnit, 0);
 
-            const targetPosition = { x: 500, y: 500 }; // Adjust to Docking Station location
-            const attractionStrength = 0.005; // Smaller value = slower pull
-            const stopThreshold = 10;
-          
-            const pullInterval = setInterval(() => {
-              if (!dataUnit) return;
-          
-              const dx = targetPosition.x - dataUnit.position.x;
-              const dy = targetPosition.y - dataUnit.position.y;
-              const distance = Math.sqrt(dx * dx + dy * dy);
-          
-              console.log(`🔍 Distance: ${distance}`);
-
-              // Stop pulling when close enough
-              if (distance < stopThreshold) {
-                clearInterval(pullInterval);
-
-
-                Matter.Body.setStatic(dataUnit, true);
-                Matter.Body.setPosition(dataUnit, targetPosition);
-                setLoadedDataUnit(dataUnit);
-                setIsLoading(false);
-                console.log('Data Unit Inserted!');
-                return;
-              }
-          
-              // Apply a weak force towards the docking station
-              Matter.Body.applyForce(dataUnit, dataUnit.position, {
-                x: dx * attractionStrength,
-                y: dy * attractionStrength,
-              });
-            }, 16); 
-          }
+          setLoadedDataUnit(dataUnit);
+          console.log("Data Unit inserted into Docking Station");
         }
       })
     };
@@ -94,18 +63,19 @@ export const DockingStation = ({ engine }: DockingStationProps) => {
       Matter.World.remove(world, dockingStation);
       Matter.Events.off(currentEngine, 'collisionStart', handleCollision);
     };
-  }, [engine, loadedDataUnit, isLoading]);
+  }, [engine, loadedDataUnit]);
 
   return (
-    <div>
-      <p className="absolute bottom-21 left-1/2 transform -translate-x-1/2 py-1 px-1 bg-gray-700 text-white">Docking Station</p>
-      {loadedDataUnit && !isLoading && (
+    <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 p-4 bg-gray-700 rounded-md text-white">
+      <p>Docking Station</p>
+      {loadedDataUnit && (
         <button
-          className="absolute bottom-21 left-[calc(50%+70px)] bg-red-500 px-3 py-1 rounded"
+          className="mt-2 bg-red-500 px-3 py-1 rounded"
           onClick={() => {
             Matter.Body.setStatic(loadedDataUnit, false);
-            Matter.Body.applyForce(loadedDataUnit, loadedDataUnit.position, { x: 0.05, y: -0.05 });
-
+            Matter.Body.setVelocity(loadedDataUnit, { x: 0, y: -5 }); // Give slight upward movement on eject
+            Matter.Body.setPosition(loadedDataUnit, { x: 200, y: 50 }); // Move it out of the docking station
+        
             setLoadedDataUnit(null);
           }}
         >

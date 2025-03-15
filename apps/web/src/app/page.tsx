@@ -25,8 +25,8 @@ export default function Home() {
       element: sceneRef.current!,
       engine: engine,
       options: {
-        width: 1000,
-        height: 600,
+        width: 800,
+        height: 400,
         background: 'transparent', // Allows custom styling
         wireframes: true, // Disable when not debugging
       },
@@ -52,10 +52,10 @@ export default function Home() {
 
     // Add static boundaries to the canvas (Walls and Floor)
     const boundaries = [
-      Matter.Bodies.rectangle(500, 0, 1000, 20, { isStatic: true }), // Top wall
-      Matter.Bodies.rectangle(500, 600, 1000, 20, { isStatic: true }), // Bottom floor
-      Matter.Bodies.rectangle(0, 300, 20, 600, { isStatic: true }), // Left wall
-      Matter.Bodies.rectangle(1000, 300, 20, 600, { isStatic: true }), // Right wall
+      Matter.Bodies.rectangle(400, -5, 800, 20, { isStatic: true }), // Top wall
+      Matter.Bodies.rectangle(400, 405, 800, 20, { isStatic: true }), // Bottom floor
+      Matter.Bodies.rectangle(-5, 200, 20, 400, { isStatic: true }), // Left wall
+      Matter.Bodies.rectangle(805, 200, 20, 400, { isStatic: true }), // Right wall
     ];
 
     // Add the Engine's world to the overall world
@@ -104,7 +104,7 @@ export default function Home() {
   return (
     <main className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white overflow-hidden">
       <h1 className="text-3xl mb-4">Insert Your Data Unit</h1>
-      <div ref={sceneRef} className="relative w-[1000px] h-[600px]">
+      <div ref={sceneRef} className="relative w-[800px] h-[400px]">
         {engineReady && (
           <>
             <DockingStation engine={engineRef} />
