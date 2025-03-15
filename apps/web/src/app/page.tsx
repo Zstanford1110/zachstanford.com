@@ -46,9 +46,25 @@ export default function Home() {
       mouse,
       constraint: {
         stiffness: 0.1,
-        render: { visible: false },
+        render: { visible: true },
       },
     });
+
+    // Canvas event to release dragged bodies when the cursor leaves the canvas/window while holding mouse 1 down
+    render.canvas.addEventListener('mouseleave', () => {
+
+      if (mouseConstraint.body) {
+        // Limit the velocity of the dragged body to mitigate bugs with the canvas boundary
+        Matter.Body.setVelocity(mouseConstraint.body, {
+          x: mouseConstraint.body.velocity.x * 0.3,
+          y: mouseConstraint.body.velocity.y * 0.3
+        });
+
+        // Force the release of the dragged body with an event
+        const mouseUpEvent = new MouseEvent('mouseup');
+        render.canvas.dispatchEvent(mouseUpEvent);
+      }
+    })
 
     // Add static boundaries to the canvas (Walls and Floor)
     const boundaries = [
@@ -84,17 +100,17 @@ export default function Home() {
     // Mark the engine as ready
     setEngineReady(true);
 
-    // Clean up the world, engine, and renderer when component unmounts/re-renders
-    return () => { 
+    // Clean up the world, engine, and renderer when component unmounts/re-renders to prevent memory leaks
+    return () => {
       if (mouseConstraint) {
         Matter.World.remove(world, mouseConstraint);
       }
-      Matter.Events.off(engine, 'beforeUpdate');
-      Matter.World.clear(world, false);
-      Matter.Engine.clear(engine);
-      Matter.Render.stop(render);
-      render.canvas.remove();
-      Matter.Runner.stop(runner);
+      Matter.Events.off(engine, 'beforeUpdate'); // Remove velocity beforeUpdate event
+      Matter.World.clear(world, false); // Clear the physics world of bodies
+      Matter.Engine.clear(engine); // Shutoff the engine
+      Matter.Render.stop(render); // Stop the renderer
+      render.canvas.remove(); // Remove the canvas
+      Matter.Runner.stop(runner); // Stop the runner
     };
   }, []);
 
