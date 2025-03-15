@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Matter from 'matter-js';
+import { releaseBodyFromMouse } from "@/utils/mouseUtils";
 
 interface DockingStationProps {
   engine: React.RefObject<Matter.Engine | null>;
@@ -45,6 +46,9 @@ export const DockingStation = ({ engine }: DockingStationProps) => {
           // If there isn't a data unit loaded or ready to be loaded (collision), if not we're done here
           if (loadedDataUnit || !dataUnit) return;
 
+          // Release the mouse constraint if this data unit is being dragged
+          releaseBodyFromMouse();
+
           // Magnetic lock for the data unit to secure it in the station
           Matter.Body.setStatic(dataUnit, true);
           Matter.Body.setPosition(dataUnit, { x: 400, y: 330 }) // Will need to adjust this value based on where I decide to put the docking station later
@@ -75,7 +79,7 @@ export const DockingStation = ({ engine }: DockingStationProps) => {
             Matter.Body.setStatic(loadedDataUnit, false);
             Matter.Body.setVelocity(loadedDataUnit, { x: 0, y: -5 }); // Give slight upward movement on eject
             Matter.Body.setPosition(loadedDataUnit, { x: 200, y: 50 }); // Move it out of the docking station
-        
+
             setLoadedDataUnit(null);
           }}
         >
