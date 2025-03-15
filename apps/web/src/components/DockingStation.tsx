@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Matter from 'matter-js';
-import { releaseBodyFromMouse } from "@/utils/mouseUtils";
+import { isBodyBeingDragged, releaseBodyFromMouse } from "@/utils/mouseUtils";
 
 interface DockingStationProps {
   engine: React.RefObject<Matter.Engine | null>;
@@ -46,8 +46,11 @@ export const DockingStation = ({ engine }: DockingStationProps) => {
           // If there isn't a data unit loaded or ready to be loaded (collision), if not we're done here
           if (loadedDataUnit || !dataUnit) return;
 
-          // Release the mouse constraint if this data unit is being dragged
-          releaseBodyFromMouse();
+          // Release the mouse constraint if the inserted data unit was actively being dragged by the mouse
+          // Check to make sure we are only releasing the inserted data unit, this fixes a bug that occurs when using another body to push a data unit into the station
+          if (isBodyBeingDragged(dataUnit)) {
+            releaseBodyFromMouse();
+          }
 
           // Magnetic lock for the data unit to secure it in the station
           Matter.Body.setStatic(dataUnit, true);
