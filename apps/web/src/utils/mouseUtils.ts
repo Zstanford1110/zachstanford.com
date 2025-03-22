@@ -17,10 +17,8 @@ export const initMouseConstraint = (
       render: { visible: false },
     },
   });
-
   return mouseConstraint;
 };
-
 
 // Reusable function to release bodies from the mouse with a mouse up event
 export const releaseBodyFromMouse = () => {

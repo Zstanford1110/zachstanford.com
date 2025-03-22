@@ -41,7 +41,7 @@ export default function Home() {
     Matter.Runner.run(runner, engine);
     Matter.Render.run(render);
 
-    // The initMouse function creates global mouse and mouseConstraint objects and returns them in a single
+    // The initMouse function creates global mouse and mouseConstraint objects to be handled by mouse utils
      const mouseConstraint = initMouseConstraint(engine, render.canvas);
 
     // Canvas event to release dragged bodies when the cursor leaves the canvas/window while holding mouse 1 down
