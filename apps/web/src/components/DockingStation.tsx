@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Matter from 'matter-js';
 import { isBodyBeingDragged, releaseBodyFromMouse } from "@/utils/mouseUtils";
-import { ProjectPage } from "./ProjectPage";
+import { ProjectModal } from "./ProjectModal";
 
 interface DockingStationProps {
   engine: React.RefObject<Matter.Engine | null>;
@@ -93,7 +93,7 @@ export const DockingStation = ({ engine }: DockingStationProps) => {
         )}
       </div>
       {loadedDataUnit && (
-        <ProjectPage loadedDataUnitLabel={loadedDataUnit.label} />
+        <ProjectModal loadedDataUnitLabel={loadedDataUnit.label} />
       )}
     </>
   );

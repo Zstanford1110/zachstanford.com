@@ -2,15 +2,16 @@
 
 import { useState, useEffect, useRef } from 'react';
 
-interface ProjectPageProps {
+interface ProjectModalProps {
   loadedDataUnitLabel: string;
 }
 
-export const ProjectPage = ({ loadedDataUnitLabel }: ProjectPageProps) => {
+export const ProjectModal = ({ loadedDataUnitLabel }: ProjectModalProps) => {
   const [isOpen, setIsOpen] = useState(true);
   const modalRef = useRef<HTMLDivElement>(null)
   const dataUnitName = loadedDataUnitLabel.split('-')[1];
 
+  // Configure browser history to close modal whenever navigating back on desktop or mobile
   useEffect(() => {
     // When modal opens, add a history entry
     if (isOpen) {
@@ -75,7 +76,7 @@ export const ProjectPage = ({ loadedDataUnitLabel }: ProjectPageProps) => {
             aria-labelledby="modal-title"
           >
             <div className="relative p-4 border-b border-gray-600">
-              <h2 id="modal-title" className="text-xl font-semibold">Loaded {dataUnitName}</h2>
+              <h2 id="modal-title" className="text-xl font-semibold">Log: {dataUnitName}</h2>
               <button
                 className="absolute top-4 right-4 text-red-500 hover:text-red-300 p-2"
                 onClick={() => setIsOpen(false)}

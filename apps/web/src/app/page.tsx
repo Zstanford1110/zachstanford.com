@@ -6,6 +6,8 @@ import { DataUnit } from "@/components/DataUnit";
 import { DockingStation } from "@/components/DockingStation";
 import { initMouseConstraint, releaseBodyFromMouse } from "@/utils/mouseUtils";
 
+import { projects } from "@/data/projects.json";
+
 
 export default function Home() {
   // Matter.js Engine Configuration
@@ -42,7 +44,7 @@ export default function Home() {
     Matter.Render.run(render);
 
     // The initMouse function creates global mouse and mouseConstraint objects to be handled by mouse utils
-     const mouseConstraint = initMouseConstraint(engine, render.canvas);
+    const mouseConstraint = initMouseConstraint(engine, render.canvas);
 
     // Canvas event to release dragged bodies when the cursor leaves the canvas/window while holding mouse 1 down
     render.canvas.addEventListener('mouseleave', () => {
@@ -99,14 +101,19 @@ export default function Home() {
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white overflow-hidden">
-      <h1 className="text-3xl mb-4">Insert Your Data Unit</h1>
-      <div ref={sceneRef} className="relative w-[800px] h-[400px]">
+      <h1 className="text-3xl mb-4">Zach's Data Library</h1>
+      <div ref={sceneRef} className="absolute top-0 left-0 w-full h-full">
         {engineReady && (
           <>
             <DockingStation engine={engineRef} />
-            <DataUnit engine={engineRef} renderRef={renderRef} label="Project 1" />
-            <DataUnit engine={engineRef} renderRef={renderRef} label="Project 2" />
-            <DataUnit engine={engineRef} renderRef={renderRef} label="Project 3" />
+            {projects.map(project => (
+              <DataUnit
+                key={project.name}
+                engine={engineRef}
+                renderRef={renderRef}
+                label={project.name}
+              />
+            ))}
           </>
         )}
       </div>
