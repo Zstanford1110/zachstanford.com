@@ -97,9 +97,6 @@ export default function Home() {
     };
   }, []);
 
-  // Enable collision detection for docking station
-  // useCollisionDetection(engineRef, dockingStationRef, () => alert('Inserted Project into docking station'));
-
   return (
     <main className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white overflow-hidden">
       <h1 className="text-3xl mb-4">Insert Your Data Unit</h1>

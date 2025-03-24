@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Matter from 'matter-js';
 import { isBodyBeingDragged, releaseBodyFromMouse } from "@/utils/mouseUtils";
+import { ProjectPage } from "./ProjectPage";
 
 interface DockingStationProps {
   engine: React.RefObject<Matter.Engine | null>;
@@ -36,8 +37,8 @@ export const DockingStation = ({ engine }: DockingStationProps) => {
         const { bodyA, bodyB } = pair;
 
         // ✅ Ensure we are detecting only DataUnits colliding with Docking Station
-        const isDataUnitA = bodyA.label === "DataUnit";
-        const isDataUnitB = bodyB.label === "DataUnit";
+        const isDataUnitA = bodyA.label.includes('DataUnit');
+        const isDataUnitB = bodyB.label.includes('DataUnit');
         const isDockingStationA = bodyA.label === "DockingStation";
         const isDockingStationB = bodyB.label === "DockingStation";
 
@@ -58,7 +59,7 @@ export const DockingStation = ({ engine }: DockingStationProps) => {
           Matter.Body.setAngle(dataUnit, 0);
 
           setLoadedDataUnit(dataUnit);
-          console.log("Data Unit inserted into Docking Station");
+          console.log(`${dataUnit.label} Data Unit inserted into Docking Station`);
         }
       })
     };
@@ -73,22 +74,27 @@ export const DockingStation = ({ engine }: DockingStationProps) => {
   }, [engine, loadedDataUnit]);
 
   return (
-    <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 p-4 bg-gray-700 rounded-md text-white">
-      <p>Docking Station</p>
-      {loadedDataUnit && (
-        <button
-          className="mt-2 bg-red-500 px-3 py-1 rounded"
-          onClick={() => {
-            Matter.Body.setStatic(loadedDataUnit, false);
-            Matter.Body.setVelocity(loadedDataUnit, { x: 0, y: -5 }); // Give slight upward movement on eject
-            Matter.Body.setPosition(loadedDataUnit, { x: 200, y: 50 }); // Move it out of the docking station
+    <>
+      <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 p-4 bg-gray-700 rounded-md text-white">
+        <p>Docking Station</p>
+        {loadedDataUnit && (
+          <button
+            className="mt-2 bg-red-500 px-3 py-1 rounded"
+            onClick={() => {
+              Matter.Body.setStatic(loadedDataUnit, false);
+              Matter.Body.setVelocity(loadedDataUnit, { x: 0, y: -5 }); // Give slight upward movement on eject
+              Matter.Body.setPosition(loadedDataUnit, { x: 200, y: 50 }); // Move it out of the docking station
 
-            setLoadedDataUnit(null);
-          }}
-        >
-          Eject
-        </button>
+              setLoadedDataUnit(null);
+            }}
+          >
+            Eject
+          </button>
+        )}
+      </div>
+      {loadedDataUnit && (
+        <ProjectPage loadedDataUnitLabel={loadedDataUnit.label} />
       )}
-    </div>
+    </>
   );
 };

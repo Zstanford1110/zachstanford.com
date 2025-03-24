@@ -43,7 +43,7 @@ export const DataUnit = ({ label, engine, renderRef }: DataUnitProps) => {
 
     // Create the data unit
     const dataUnit = Matter.Bodies.rectangle(200, 100, width, height, {
-      label: "DataUnit",
+      label: "DataUnit" + "-" + label,
       restitution: 0.2, // Reduces bouncing
       friction: 0.5, // Adds realistic surface resistance
       frictionAir: 0.02, // Limits object acceleration
